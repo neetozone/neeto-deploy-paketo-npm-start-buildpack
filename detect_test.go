@@ -129,11 +129,33 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 			Expect(os.RemoveAll(workingDir)).To(Succeed())
 		})
 
-		it("fails detection", func() {
-			_, err := detect(packit.DetectContext{
+		it("detects", func() {
+			result, err := detect(packit.DetectContext{
 				WorkingDir: workingDir,
 			})
-			Expect(err).To(MatchError(ContainSubstring(npmstart.NoStartScriptError)))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.Plan).To(Equal(packit.BuildPlan{
+				Requires: []packit.BuildPlanRequirement{
+					{
+						Name: "node",
+						Metadata: map[string]interface{}{
+							"launch": true,
+						},
+					},
+					{
+						Name: "npm",
+						Metadata: map[string]interface{}{
+							"launch": true,
+						},
+					},
+					{
+						Name: "node_modules",
+						Metadata: map[string]interface{}{
+							"launch": true,
+						},
+					},
+				},
+			}))
 		})
 	})
 
